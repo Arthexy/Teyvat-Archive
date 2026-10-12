@@ -105,7 +105,7 @@ async function openAkashaBuild(index, remember=true) {
   $("character-detail").hidden=false;
   $("back-showcase").textContent=t("Kembali ke ranking");
   $("page-description").textContent=t("Snapshot build dari Akasha · equipment sesuai hash ranking.");
-  $("character-detail").innerHTML=html`<p role="status">Memuat snapshot Akasha…</p>`;
+  $("character-detail").innerHTML=loadingSkeleton("detail", t("Memuat snapshot Akasha…"), 5);
   if(remember) history.pushState({view:"detail",build:hash},"",`/rankings#build-${hash}`);
   try {
     const result=await api(`/akasha-build/${uid}/${hash}`);
@@ -274,9 +274,10 @@ async function loadPublic(refresh=false) {
   state.characters = []; state.rankings = []; state.rankPage = 1; if(!refresh) state.charPage = 1; $("character-detail").hidden = true;
   $("info-dialog").close(); updateLoadButton();
   notice("");
-  $("profile").innerHTML = t('<div class="empty">Memuat profil publik…</div>');
-  $("showcase-preview").textContent = $("showcase-table").textContent = t("Memuat showcase…");
-  $("rankings").textContent = t("Memuat snapshot ranking…");
+  $("profile").innerHTML = loadingSkeleton("profile", t("Memuat profil publik…"), 1);
+  $("showcase-preview").innerHTML = loadingSkeleton("cards", t("Memuat showcase…"), 4);
+  $("showcase-table").innerHTML = loadingSkeleton("cards", t("Memuat showcase…"), 8);
+  $("rankings").innerHTML = loadingSkeleton("rows", t("Memuat snapshot ranking…"), 5);
   $("rank-freshness").textContent = t("Memuat");
   $("profile-freshness").textContent = t("Memuat");
   const fetchShowcase = () => refresh ? api("/refresh", "POST", {source:"showcase",uid}) : api(`/showcase/${uid}`);
@@ -310,6 +311,7 @@ async function fetchRankings(uid, generation, forceRefresh=false) {
     $("rank-freshness").textContent = t("Dinonaktifkan"); return;
   }
   state.rankingsLoading = true; updateLoadButton();
+  if (!state.rankings.length) $("rankings").innerHTML = loadingSkeleton("rows", t("Memuat snapshot ranking…"), 5);
   try {
     const result = forceRefresh ? await api("/refresh", "POST", {source:"rankings",uid}) : await api(`/rankings/${uid}`);
     if (generation !== state.generation || request !== state.rankingRequest) return;
@@ -406,7 +408,7 @@ async function loadExplore(refresh=false) {
     $("refresh-explore").disabled=true; return;
   }
   state.exploreLoading=true; $("refresh-explore").disabled=true;
-  if(!state.explore) $("explore").innerHTML=html`<p class="empty-line" role="status">Memuat eksplorasi…</p>`;
+  if(!state.explore) $("explore").innerHTML=loadingSkeleton("cards", t("Memuat eksplorasi…"), 6);
   try {
     const result=refresh ? await api("/refresh","POST",{source:"explore"}) : await api("/explore");
     if(account!==state.config?.hoyolab.game_uid || generation!==(state.exploreGeneration||0)) return;
@@ -434,6 +436,10 @@ async function loadNotes(refresh=false) {
     return;
   }
   state.notesLoading = true;
+  if (!$("notes").querySelector(".resources")) {
+    $("notes").innerHTML = loadingSkeleton("cards", t("Memuat catatan harian…"), 3);
+    $("notes-summary").innerHTML = loadingSkeleton("profile", t("Memuat catatan harian…"), 1);
+  }
   $("refresh-notes").disabled = true;
   try {
     const result = refresh ? await api("/refresh", "POST", {source:"notes"}) : await api("/notes");
