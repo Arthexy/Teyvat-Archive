@@ -276,7 +276,7 @@ async function loadPublic(refresh=false) {
   notice("");
   $("profile").innerHTML = loadingSkeleton("profile", t("Memuat profil publik…"), 1);
   $("showcase-preview").innerHTML = loadingSkeleton("cards", t("Memuat showcase…"), 4);
-  $("showcase-table").innerHTML = loadingSkeleton("cards", t("Memuat showcase…"), 8);
+  $("showcase-table").innerHTML = loadingSkeleton("showcase", t("Memuat showcase…"), state.pageSize);
   $("rankings").innerHTML = loadingSkeleton("rows", t("Memuat snapshot ranking…"), 5);
   $("rank-freshness").textContent = t("Memuat");
   $("profile-freshness").textContent = t("Memuat");
@@ -408,7 +408,7 @@ async function loadExplore(refresh=false) {
     $("refresh-explore").disabled=true; return;
   }
   state.exploreLoading=true; $("refresh-explore").disabled=true;
-  if(!state.explore) $("explore").innerHTML=loadingSkeleton("cards", t("Memuat eksplorasi…"), 6);
+  if(!state.explore) $("explore").innerHTML=loadingSkeleton("explore", t("Memuat eksplorasi…"), 6);
   try {
     const result=refresh ? await api("/refresh","POST",{source:"explore"}) : await api("/explore");
     if(account!==state.config?.hoyolab.game_uid || generation!==(state.exploreGeneration||0)) return;
@@ -437,8 +437,8 @@ async function loadNotes(refresh=false) {
   }
   state.notesLoading = true;
   if (!$("notes").querySelector(".resources")) {
-    $("notes").innerHTML = loadingSkeleton("cards", t("Memuat catatan harian…"), 3);
-    $("notes-summary").innerHTML = loadingSkeleton("profile", t("Memuat catatan harian…"), 1);
+    $("notes").innerHTML = loadingSkeleton("notes", t("Memuat catatan harian…"), 3);
+    $("notes-summary").innerHTML = loadingSkeleton("summary", t("Memuat catatan harian…"), 1);
   }
   $("refresh-notes").disabled = true;
   try {
